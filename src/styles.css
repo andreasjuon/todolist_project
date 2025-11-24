@@ -1,0 +1,23 @@
+html,
+body {
+    min-height: 100vh;
+    margin: 0;
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 5px;
+}
+
+#taskList {
+    flex: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 200px);
+    gap: 15px;
+    background-color: #f7fbff;
+    padding: 5px;
+    height: 100%;
+    width: 100%;
+}
