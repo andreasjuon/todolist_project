@@ -11,13 +11,34 @@ body {
     padding: 5px;
 }
 
+#projectTasks {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+}
+
+/* If either column drops below 200px, switch to stacked layout */
+@media (max-width: 600px) {
+
+    /* 200px + 400px (2×200) = 600 */
+    #projectTasks {
+        grid-template-columns: 1fr;
+        /* stacked */
+    }
+}
+
 #taskList {
     flex: auto;
     display: grid;
     grid-template-columns: repeat(auto-fit, 200px);
     gap: 15px;
     background-color: #f7fbff;
-    padding: 5px;
+    padding: 15px;
     height: 100%;
     width: 100%;
+}
+
+#taskList p {
+    background-color: #cee6fe;
+    margin:0;
 }
