@@ -3,6 +3,11 @@ import { Project, ToDoItem, createButton } from "./utils/helpers";
 import { DataManager } from "./utils/data_manager";
 import { Displayer } from "./utils/displayer";
 
+document.getElementById("toggleSidebar").addEventListener("click", () => {
+    document.getElementById("projectTasks").classList.toggle("sidebar-open");
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const DOM = {
