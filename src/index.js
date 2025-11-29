@@ -1,11 +1,29 @@
+//TODO DESIGN:
+//Better design for tasks and projects
+//automatic styling depending on importance
+
+//TODO FUNCTIONALITY
+//Complete button functionality for tasks
+//Edit functionality for tasks and projects (maybe save current contents, replace by user form if necessary, then add task and delete old task?)
+//Filter functionality for display
+
 import "./styles.css";
 import { Project, ToDoItem, createButton } from "./utils/helpers";
 import { DataManager } from "./utils/data_manager";
 import { Displayer } from "./utils/displayer";
 
-document.getElementById("toggleSidebar").addEventListener("click", () => {
-    document.getElementById("projectTasks").classList.toggle("sidebar-open");
+const toggleButton = document.getElementById("toggleSidebar");
+toggleButton.addEventListener("click", () => {
+    if (projectTasks.classList.contains("sidebar-open")) {
+        projectTasks.classList.replace("sidebar-open", "sidebar-closed");
+    } else if (projectTasks.classList.contains("sidebar-closed")) {
+        projectTasks.classList.replace("sidebar-closed", "sidebar-open");
+    } else {
+        // fallback: if neither class exists, open sidebar
+        projectTasks.classList.add("sidebar-open");
+    }
 });
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -55,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay)
     console.log(window.userProject.getTasks())
 
-    // Removing projects
+    // Removing tasks
     DOM.taskDisplay.addEventListener("click", (e) => {
         const taskToModify = e.target;
         const taskToModifyID = taskToModify.parentElement.dataset.taskId;

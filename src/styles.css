@@ -1,22 +1,38 @@
+/* BASIC SETTINGS */
+
 html,
 body {
     min-height: 100vh;
     margin: 0;
 }
 
+.header {
+    background-color: #205f9e;
+}
+
+*{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* OVERALL PAGE ORGANIZATION */
+
 #content {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding: 5px;
+    padding: 0px;
 }
+
+
+/* SIDEBAR */
 
 /* Sidebar default: hidden (0 width) */
 #projectTasks {
     display: grid;
     grid-template-columns: 0px 1fr;
-    gap: 1rem;
     transition: grid-template-columns 0.3s ease;
+    flex: auto;
 }
 
 /* When sidebar is open */
@@ -32,16 +48,29 @@ body {
     overflow-y: auto;
 }
 
-
 /* If either column drops below 200px, switch to stacked layout */
 @media (max-width: 600px) {
-
-    /* 200px + 400px (2×200) = 600 */
-    #projectTasks {
+    #projectTasks.sidebar-closed {
+        display: grid;
         grid-template-columns: 1fr;
-        /* stacked */
+        grid-template-rows: 0px 1fr;
+    }
+    #projectTasks.sidebar-open {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    #projectTasks.sidebar-closed #projectList {
+        height: 0;
+        overflow: hidden;
+    }
+    #projectTasks.sidebar-open #projectList {
+        height: auto;
     }
 }
+
+
+/* TASK LIST */
 
 #taskList {
     flex: auto;
