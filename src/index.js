@@ -16,21 +16,32 @@ document.addEventListener("DOMContentLoaded", () => {
         dueDateInputAdd: document.querySelector("#add_duedate"),
         priorityInputAdd: document.querySelector("#add_priority"),
         selectProjectDropdown: document.querySelector("select#select_project"),
+        cancelTaskButton: document.querySelector("#cancelTask"),
         newProjectInput: document.querySelector("#new_project_input"),
         addProjectButton: document.querySelector("button#addProject"),
         addProjectDialog: document.querySelector("#add_project_dialog"),
         addProjectForm: document.querySelector("#add_project_form"),
         ProjectTitleInputAdd: document.querySelector("#add_project_title"),
         ProjectDescriptionInputAdd: document.querySelector("#add_project_description"),
-        projectColorInputAdd: document.querySelector("#add_project_color")
+        projectColorInputAdd: document.querySelector("#add_project_color"),
+        cancelProjectButton: document.querySelector("#cancelProject")
     };
 
-    function clearTaskForm() {
-        DOM.titleInputAdd.value = "";
-        DOM.descriptionInputAdd.value = "";
-        DOM.newProjectInput.value = "";
-        DOM.selectProjectDropdown.selectedIndex = 0;
+    const formManipulator = {
+        clearTaskForm: function() {
+            DOM.titleInputAdd.value = "";
+            DOM.descriptionInputAdd.value = "";
+            DOM.newProjectInput.value = "";
+            DOM.selectProjectDropdown.selectedIndex = 0;
+            DOM.dueDateInputAdd.value = "";
+        },
+        clearProjectForm: function() {
+            DOM.ProjectTitleInputAdd.value = "";
+            DOM.ProjectDescriptionInputAdd.value = "";
+            DOM.projectColorInputAdd.value = ""
+        }
     }
+    
 
     // Initialization
     window.userProject = DataManager();
@@ -95,7 +106,11 @@ document.addEventListener("DOMContentLoaded", () => {
         window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
         window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay);
         // Clear form
-        clearTaskForm();
+        formManipulator.clearTaskForm();
+        DOM.addTaskDialog.close();
+    });
+    DOM.cancelTaskButton.addEventListener("click", (e) => {
+        formManipulator.clearTaskForm();
         DOM.addTaskDialog.close();
     });
 
@@ -111,6 +126,11 @@ document.addEventListener("DOMContentLoaded", () => {
             DOM.projectColorInputAdd.value
         );
         window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay);
+        formManipulator.clearProjectForm();
+        DOM.addProjectDialog.close();
+    });
+    DOM.cancelProjectButton.addEventListener("click", (e) => {
+        formManipulator.clearProjectForm();
         DOM.addProjectDialog.close();
     });
 
