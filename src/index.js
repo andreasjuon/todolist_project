@@ -19,7 +19,7 @@ class ToDoItem {
         this.priority = priority;
         this.project = project;
         this.complete = false;
-        this.taskID = crypto.randomUUID();
+        this.taskId = crypto.randomUUID();
     }
 }
 
@@ -27,11 +27,10 @@ class ToDoItem {
 function EventManager(user = "test user"){
 
     // internal project and task list, not exposed
-    let projectList = [
-        new Project("Inbox", "This is the default project.", "red")
-    ];//Inbox is default project
+    let inbox = new Project("Inbox", "This is the default project.", "red");
+    let projectList = [inbox];//Inbox is default project
     let taskList = [
-        new ToDoItem("Test", "test test test!", "Inbox", "13.4.1929", "3")
+        new ToDoItem("Test", "test test test!", inbox.projectId, "13.4.1929", "3")
     ];//But task list is empty
 
     // new tasks
@@ -59,13 +58,26 @@ function EventManager(user = "test user"){
         taskList = taskList.filter(task => task.project !== title);
     }
 
+    // get all projects from task list and repopulate list
+    const pullProjectsFromTasks = () => {
+        const uniqueProjectTitles = [...new Set(taskList.map(task => task.project))];
+
+        uniqueProjectTitles.forEach(title => {
+            // Only add if it doesn't already exist
+            if (!projectList.some(p => p.title === title)) {
+                projectList.push(new Project(title, "Added from task", "blue")); // default color and description
+            }
+        });
+    };
+
+
     // export projects
     const getProjects = () => projectList;
 
     // export projects
     const getTasks = () => taskList;
 
-    return { addTask, deleteTask, addProject, deleteProject, getProjects, getTasks };
+    return { addTask, deleteTask, addProject, deleteProject, getProjects, getTasks, pullProjectsFromTasks };
 }
 
 // Displayer: Filters these underlying lists, displays them, etc.
@@ -103,15 +115,25 @@ function Displayer(app) {
             //add all attributes except ID and info
             for (const [key, value] of Object.entries(item)) {
 
-                if (key === "taskID") {
-                    task.dataset.taskID = value;
-                }
-                if (key === "taskID" || key === "info") continue;
                 const el = document.createElement("p");
-                el.className = key;       // e.g., 'author', 'title', etc.
-                el.textContent = value;
-                if (key === "complete" && value === true) { el.textContent = "Task complete!" }
-                if (key === "complete" && value === false) { el.textContent = "Task not yet complete!" }
+
+                // do not display taskId but store it
+                if (key === "taskId") {
+                    task.dataset.taskID = value;
+                    continue; // skip adding a <p> for taskId
+                }
+
+                // Map project ID to title
+                if (key === "project") {
+                    const projectObj = window.userProject.getProjects().find(p => p.projectId === value);
+                    el.textContent = projectObj ? projectObj.title : "Unknown Project";
+                } else if (key === "complete") {
+                    el.textContent = value ? "Task complete!" : "Task not yet complete!";
+                } else {
+                    el.textContent = value;
+                }
+
+                el.className = key; 
                 task.appendChild(el);
             }
             //add remove button
@@ -138,10 +160,10 @@ function Displayer(app) {
             project.className = "project";
             //add all attributes except ID and info
             for (const [key, value] of Object.entries(item)) {
-                if (key === "projectID") {
+                if (key === "projectId") {
                     project.dataset.projectID = value;
                 }
-                if (key === "projectID" || key === "info") continue;
+                if (key === "projectId" || key === "info") continue;
                 const el = document.createElement("p");
                 el.className = key;       // e.g., 'author', 'title', etc.
                 el.textContent = value;
@@ -152,12 +174,6 @@ function Displayer(app) {
             removeButton.className = "remove";
             removeButton.textContent = "Remove";
             project.appendChild(removeButton);
-            //add done button
-            let doneButton = document.createElement("button");
-            doneButton.className = "done";
-            if (item.complete === true) { doneButton.textContent = "Not complete"; project.classList.add("complete"); };
-            if (item.complete === false) { doneButton.textContent = "Complete"; project.classList.add("incomplete"); };
-            project.appendChild(doneButton);
             //add project to projectlist
             projectDisplay.appendChild(project);
         })
@@ -168,11 +184,14 @@ function Displayer(app) {
 
     }
 
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Reading DOM
-    const addTaskButton = document.querySelector("button#addTask");
-    const addTaskDialog = document.querySelector("#add_task_dialog");
     const projectDisplay = document.querySelector("#projectList");
     const taskDisplay = document.querySelector("#taskList");
 
@@ -180,6 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.userProject = EventManager();
     window.userDisplayer = Displayer(window.userProject); 
+    window.userDisplayer.displayProjects(window.userProject.getProjects(), projectDisplay)
     window.userDisplayer.displayTasks(window.userProject.getTasks(), taskDisplay)
     console.log(window.userProject.getTasks())
 
@@ -202,102 +222,110 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Adding Task?
 
-    const addTaskForm = document.querySelector("#add_task_form")
+    function populateProjectDropdown(projectList, dropdown) {
+        dropdown.innerHTML = `<option value="" selected disabled>Select an existing project</option>`;
+        projectList.forEach(project => {
+            const option = document.createElement("option");
+            option.value = project.projectId; // store ID
+            option.textContent = project.title; // display title
+            dropdown.appendChild(option);
+        });
+    }
+
+    const addTaskButton = document.querySelector("button#addTask");
+    const addTaskDialog = document.querySelector("#add_task_dialog");
+    const addTaskForm = document.querySelector("#add_task_form");
+
     const titleInputAdd = document.querySelector("#add_title");
     const descriptionInputAdd = document.querySelector("#add_description");
-    const projectInputAdd = document.querySelector("#select_project");
+    //const projectInputAdd = document.querySelector("#select_project");
     const dueDateInputAdd = document.querySelector("#add_duedate");
     const priorityInputAdd = document.querySelector("#add_priority");
+    const selectProjectDropdown = document.querySelector("select#select_project");
 
     addTaskButton.addEventListener("click", (e) => {
         addTaskDialog.showModal();
+        console.log("Projects: " + window.userProject.getProjects());
+        console.log("selectProjectDropdown" + selectProjectDropdown);
+        populateProjectDropdown(window.userProject.getProjects(), selectProjectDropdown);
+        console.log("selectProjectDropdown" + selectProjectDropdown);
+
         //window.userProject.addTask()
     })
 
     addTaskForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        window.userProject.addTask(
-            titleInputAdd.value,
-            descriptionInputAdd.value,
-            projectInputAdd.value,
-            dueDateInputAdd.value,
-            priorityInputAdd.value
-        );
-        window.userDisplayer.displayTasks(window.userProject.getTasks(), taskDisplay)
-        addTaskDialog.close();
-    });
-});
 
+        const title = titleInputAdd.value.trim();
+        const description = descriptionInputAdd.value.trim();
+        const dueDate = dueDateInputAdd.value;
+        const priority = priorityInputAdd.value;
+        const newProjectInput = document.querySelector("#new_project_input");
 
+        let projectId;
 
+        if (newProjectInput.value.trim() !== "") {
+            // User entered a new project
+            const newTitle = newProjectInput.value.trim();
 
-
-
-
-
-/*
-const displayTasks = (displayList) =>{
-        displayList.forEach(task => {
-
-            const taskDiv = document.createElement("div");
-
-            for (const [key, value] of Object.entries(task)){
-                const el = document.createElement("p");
-                el.textContent = value;
-                el.classList.add(key);
-                taskDiv.appendChild(el);
+            // Check if project with this title already exists
+            let existing = window.userProject.getProjects().find(p => p.title === newTitle);
+            if (!existing) {
+                window.userProject.addProject(newTitle, "Added from task", "blue");
+                existing = window.userProject.getProjects().find(p => p.title === newTitle);
             }
+            projectId = existing.projectId;
 
-            const removeButton = document.createElement("button");
-            removeButton.className = "remove";
-            removeButton.textContent = "Remove";
-            taskDiv.appendChild(removeButton);
-
-            const toggleCompleteButton = document.createElement("button");
-            toggleCompleteButton.className = "complete";
-            toggleCompleteButton.textContent = "Complete";
-            taskDiv.appendChild(toggleCompleteButton);
-
-            DisplayedTaskList.appendChild(taskDiv);
-
-        })
-
-    }
-*/
-
-/*
-// displaying tasks
-const filterTasks = (filterList) => {
-
-    // empty displayList
-    let displayList = [];
-
-    // select tasks that satisfy all filters
-    taskList.forEach(task => {
-        // Check against all filters
-        const passesAnyFilter = filterList.every(filterFn => filterFn(task));//returns true if task passes all filters
-        if (passesAnyFilter) {
-            displayList.push(task);
+        } else {
+            // Use selected existing project - need to find by title
+            const selectedTitle = selectProjectDropdown.value;
+            const selectedProject = window.userProject.getProjects().find(p => p.title === selectedTitle);
+            projectId = selectedProject ? selectedProject.projectId : window.userProject.getProjects()[0].projectId; // fallback to Inbox
         }
+
+        // Add task using project ID
+        window.userProject.addTask(title, description, projectId, dueDate, priority);
+
+        // Refresh display
+        window.userDisplayer.displayTasks(window.userProject.getTasks(), taskDisplay);
+        window.userDisplayer.displayProjects(window.userProject.getProjects(), projectDisplay);
+
+        // Clear form
+        titleInputAdd.value = "";
+        descriptionInputAdd.value = "";
+        newProjectInput.value = "";
+        selectProjectDropdown.selectedIndex = 0;
+        addTaskDialog.close();
+        //window.userProject.pullProjectsFromTasks()
+    });
+
+    // Adding Project?
+    const addProjectButton = document.querySelector("button#addProject");
+    const addProjectDialog = document.querySelector("#add_project_dialog");
+    const addProjectForm = document.querySelector("#add_project_form");
+
+    const ProjectTitleInputAdd = document.querySelector("#add_project_title");
+    const ProjectDescriptionInputAdd = document.querySelector("#add_project_description");
+    const projectColorInputAdd = document.querySelector("#add_project_color");
+
+    //title, description, color
+
+    addProjectButton.addEventListener("click", (e) => {
+        addProjectDialog.showModal();
+        //window.userProject.addTask()
     })
 
-    return displayList;
-}
-*/
+    addProjectForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        window.userProject.addProject(
+            ProjectTitleInputAdd.value,
+            ProjectDescriptionInputAdd.value,
+            projectColorInputAdd.value
+        );
+        window.userDisplayer.displayProjects(window.userProject.getProjects(), projectDisplay);
+        addProjectDialog.close();
+    });
 
-/*
-const DisplayedTaskList = document.querySelector(".taskList");
-// Initialize Lists
-let filterList = [
-    task => task.complete === false// by default: only display tasks that are incomplete
-];//list of all filters applied to display
 
-// Initialize empty display
-const events = EventManager();
-const tasksFiltered = events.filterTasks(filterList);
-events.displayTasks(tasksFiltered);
 
-console.log(events.taskList)
-//events.addTask("Do the laundry", "Have to do laundry, both 40 and 60C", "Household", "1.1.1989", "4")
-//events.displayTasks(events.filterTasks())
-*/
+});

@@ -46,10 +46,12 @@
             </label>
             <input type="text" name="description" id="add_description" required>
 
-            <label for="select_project">
-                <span class="input-project">PROJECT</span>
-            </label>
-            <input type="text" name="project" id="select_project" required>
+            <label for="select_project">Project:</label>
+            <select id="select_project">
+                <option value="" selected disabled>Select an existing project</option>
+                <!-- Options populated dynamically -->
+            </select>
+            <input type="text" id="new_project_input" placeholder="Or enter new project" />
             
             <label for="add_duedate">
                 <span class="input-title">DUE DATE</span>
@@ -72,20 +74,20 @@
     <dialog id="add_project_dialog">
         <form action="" id="add_project_form">
             <h2>Add a project:</h2>
-            <label for="add_title">
+            <label for="add_project_title">
                 <span class="input-title">TITLE</span>
             </label>
-            <input type="text" name="title" id="add_title" required>
+            <input type="text" name="title" id="add_project_title" required>
     
-            <label for="add_description">
+            <label for="add_project_description">
                 <span class="input-title">DESCRIPTION</span>
             </label>
-            <input type="text" name="description" id="add_description" required>
+            <input type="text" name="description" id="add_project_description" required>
 
-            <label for="add_color">
+            <label for="add_project_color">
                 <span class="input-title">COLOR</span>
             </label>
-            <input type="text" name="color" id="add_color" required>
+            <input type="text" name="color" id="add_project_color" required>
     
             <button type="submit">Add</button>
         </form>
