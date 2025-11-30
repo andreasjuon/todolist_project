@@ -1,10 +1,13 @@
 
 class Project {
-    constructor(title, description, color) {
+    constructor(title, description, color, id = "none") {
         this.title = title;
         this.description = description;
         this.color = color;
-        this.projectId = crypto.randomUUID();
+        if (id === "none") {
+            this.projectId = crypto.randomUUID();
+        }
+        else this.projectId = id;
     }
 
 }

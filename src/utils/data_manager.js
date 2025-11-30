@@ -16,8 +16,8 @@ function DataManager(user = "test user") {
     };
 
     // new project
-    const addProject = (title, description, color = "green") => {
-        const newProject = new Project(title, description, color);
+    const addProject = (title, description, color = "green", id = "none") => {
+        const newProject = new Project(title, description, color, id);
         projectList.push(newProject);
     };
 
@@ -27,12 +27,38 @@ function DataManager(user = "test user") {
         taskList.splice(taskIndex, 1);
     }
 
-    // delete project
-    const deleteProject = (projectName) => {
-        let projectIndex = projectList.findIndex(p => p.title === projectName)
+    // delete project and all its tasks
+    const deleteProject = (projectID, ask = true, removeTasks = true) => {
+        let projectIndex = projectList.findIndex(obj => obj.projectId === projectID);
+
+        if (projectIndex < 0 || projectIndex >= projectList.length) return; 
+
+        const projectToDelete = projectList[projectIndex];
+        console.log(projectToDelete)
+    
+        // Confirm with user
+        if (ask) {
+            const confirmed = confirm(
+                `Are you sure you want to delete project "${projectToDelete.title}"?\n` +
+                `This will ALSO delete all tasks in that project.`
+            );
+
+            if (!confirmed) return;
+        }
+
         projectList.splice(projectIndex, 1);
-        taskList = taskList.filter(task => task.project !== title);
+        
+        if (removeTasks) {
+            taskList = taskList.filter(task => task.project !== projectID);
+        }
+
     };
+
+    // in/complete task
+    const toggleCompleteTask = (taskId) => {
+        let taskIndex = taskList.findIndex(obj => obj.taskId === taskId)
+        taskList[taskIndex].complete = taskList[taskIndex].complete ? false: true;
+    }
 
 
     // export projects
@@ -41,7 +67,7 @@ function DataManager(user = "test user") {
     // export projects
     const getTasks = () => taskList;
 
-    return { addTask, deleteTask, addProject, deleteProject, getProjects, getTasks };
+    return { addTask, deleteTask, toggleCompleteTask, addProject, deleteProject, getProjects, getTasks };
 }
 
 export { DataManager };

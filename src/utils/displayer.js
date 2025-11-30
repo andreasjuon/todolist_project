@@ -8,13 +8,13 @@ function Displayer(app) {
         task => task.complete === false// by default: only display tasks that are incomplete
     ];
 
-    const filterTasks = (filterList) => {
+    const filterTasks = (tasks, filterList) => {
 
         // empty displayList
-        displayedTasks = [];
+        let displayedTasks = [];
 
         // select tasks that satisfy all filters
-        app.getTasks().forEach(task => {
+        tasks.forEach(task => {
             // Check against all filters
             const passesAllFilters = filterList.every(filterFn => filterFn(task));//returns true if task passes all filters
             if (passesAllFilters) {
@@ -45,7 +45,15 @@ function Displayer(app) {
                     const projectObj = window.userProject.getProjects().find(p => p.projectId === value);
                     el.textContent = projectObj ? projectObj.title : "Unknown Project";
                 } else if (key === "complete") {
-                    el.textContent = value ? "Task complete!" : "Task not yet complete!";
+                    if (value) {
+                        task.classList.add("complete");
+                        task.classList.remove("incomplete");
+                        el.textContent = "Task complete!";
+                    } else {
+                        task.classList.add("incomplete");
+                        task.classList.remove("complete");
+                        el.textContent = "Task not yet complete!";
+                    };
                 } else {
                     el.textContent = value;
                 }
@@ -55,7 +63,9 @@ function Displayer(app) {
             }
             //add remove button
             task.appendChild(createButton("remove", "Remove"));
-            task.appendChild(createButton("done", item.complete ? "Not complete" : "Complete"));
+            task.appendChild(createButton("toggleComplete", item.complete ? "Not complete" : "Complete"));
+            task.appendChild(createButton("edit", "Edit"));
+
             //add task to tasklist
             taskDisplay.appendChild(task);
         })
@@ -79,17 +89,15 @@ function Displayer(app) {
                 project.appendChild(el);
             }
             //add remove button
-            let removeButton = document.createElement("button");
-            removeButton.className = "remove";
-            removeButton.textContent = "Remove";
-            project.appendChild(removeButton);
+            project.appendChild(createButton("remove", "Remove"));
+            project.appendChild(createButton("edit", "Edit"));
             //add project to projectlist
             projectDisplay.appendChild(project);
         })
 
     }
 
-    return { displayTasks, displayProjects }
+    return { displayTasks, filterTasks, displayProjects }
 
 }
 

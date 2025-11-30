@@ -3,8 +3,6 @@
 //automatic styling depending on importance
 
 //TODO FUNCTIONALITY
-//Complete button functionality for tasks
-//Edit functionality for tasks and projects (maybe save current contents, replace by user form if necessary, then add task and delete old task?)
 //Filter functionality for display
 
 import "./styles.css";
@@ -12,23 +10,13 @@ import { Project, ToDoItem, createButton } from "./utils/helpers";
 import { DataManager } from "./utils/data_manager";
 import { Displayer } from "./utils/displayer";
 
-const toggleButton = document.getElementById("toggleSidebar");
-toggleButton.addEventListener("click", () => {
-    if (projectTasks.classList.contains("sidebar-open")) {
-        projectTasks.classList.replace("sidebar-open", "sidebar-closed");
-    } else if (projectTasks.classList.contains("sidebar-closed")) {
-        projectTasks.classList.replace("sidebar-closed", "sidebar-open");
-    } else {
-        // fallback: if neither class exists, open sidebar
-        projectTasks.classList.add("sidebar-open");
-    }
-});
 
 
 
 document.addEventListener("DOMContentLoaded", () => {
 
     const DOM = {
+        toggleButton: document.getElementById("toggleSidebar"),
         projectDisplay: document.querySelector("#projectList"),
         taskDisplay: document.querySelector("#taskList"),
         addTaskButton: document.querySelector("button#addTask"),
@@ -49,6 +37,17 @@ document.addEventListener("DOMContentLoaded", () => {
         projectColorInputAdd: document.querySelector("#add_project_color"),
         cancelProjectButton: document.querySelector("#cancelProject")
     };
+
+    DOM.toggleButton.addEventListener("click", () => {
+        if (projectTasks.classList.contains("sidebar-open")) {
+            projectTasks.classList.replace("sidebar-open", "sidebar-closed");
+        } else if (projectTasks.classList.contains("sidebar-closed")) {
+            projectTasks.classList.replace("sidebar-closed", "sidebar-open");
+        } else {
+            // fallback: if neither class exists, open sidebar
+            projectTasks.classList.add("sidebar-open");
+        }
+    });
 
     const formManipulator = {
         clearTaskForm: function() {
@@ -73,16 +72,41 @@ document.addEventListener("DOMContentLoaded", () => {
     window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay)
     console.log(window.userProject.getTasks())
 
-    // Removing tasks
+    // Removing task or toggling complete or editing
     DOM.taskDisplay.addEventListener("click", (e) => {
-        const taskToModify = e.target;
-        const taskToModifyID = taskToModify.parentElement.dataset.taskId;
-        if (taskToModify.className === "remove") {
+
+        const pressedButton = e.target;
+        console.log(pressedButton);
+        const taskToModifyID = pressedButton.parentElement.dataset.taskId;
+
+        if (pressedButton.className === "remove") {
             window.userProject.deleteTask(taskToModifyID);
         }
-        if (taskToModify.className === "done") {
-            if (index !== -1) myLibrary[index].toggleRead();
+
+        if (pressedButton.className === "toggleComplete") {
+            console.log("Toggling complete");
+            window.userProject.toggleCompleteTask(taskToModifyID);
         }
+
+        if (e.target.classList.contains("edit")) {
+            const task = window.userProject.getTasks().find(t => t.taskId === taskToModifyID);
+            if (!task) return;
+            // Populate form
+            DOM.titleInputAdd.value = task.title;
+            DOM.descriptionInputAdd.value = task.description;
+            DOM.dueDateInputAdd.value = task.dueDate;
+            DOM.priorityInputAdd.value = task.priority;
+            DOM.selectProjectDropdown.value = task.project; // project ID
+            // Populate dropdown
+            populateProjectDropdown(window.userProject.getProjects(), DOM.selectProjectDropdown);
+            DOM.selectProjectDropdown.value = task.project; // preselect project ID
+            // Remove the original task (edit = delete + add)
+            window.userProject.deleteTask(taskToModifyID);
+            // Open the Add Task dialog
+            DOM.addTaskDialog.showModal();
+        }
+
+        window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay);
         window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
     })
 
@@ -137,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         DOM.addTaskDialog.close();
     });
 
+
     // Adding Project
     DOM.addProjectButton.addEventListener("click", (e) => {
         DOM.addProjectDialog.showModal();
@@ -146,15 +171,50 @@ document.addEventListener("DOMContentLoaded", () => {
         window.userProject.addProject(
             DOM.ProjectTitleInputAdd.value,
             DOM.ProjectDescriptionInputAdd.value,
-            DOM.projectColorInputAdd.value
+            DOM.projectColorInputAdd.value,
+            DOM.addProjectDialog.dataset.projectId
         );
         window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay);
+        window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
         formManipulator.clearProjectForm();
+        DOM.addProjectDialog.dataset.projectId = "none"
         DOM.addProjectDialog.close();
     });
     DOM.cancelProjectButton.addEventListener("click", (e) => {
         formManipulator.clearProjectForm();
+        DOM.addProjectDialog.dataset.projectId = "none"
         DOM.addProjectDialog.close();
     });
+
+    // Removing or editing project
+    DOM.projectDisplay.addEventListener("click", (e) => {
+
+        const projectToModifyID = e.target.parentElement.dataset.projectID;
+        console.log(e.target.parentElement.dataset)
+
+        if (e.target.className === "remove") {
+            window.userProject.deleteProject(projectToModifyID);
+        }
+
+        if (e.target.classList.contains("edit")) {
+            const project = window.userProject.getProjects().find(p => p.projectId === projectToModifyID);
+
+            if (!project) return;
+            // Populate form
+            DOM.ProjectTitleInputAdd.value = project.title;
+            DOM.ProjectDescriptionInputAdd.value = project.description;
+            DOM.projectColorInputAdd.value = project.color;
+
+            DOM.addProjectDialog.dataset.projectId = project.projectId;
+            // Remove the original project (edit = delete + add)
+            window.userProject.deleteProject(projectToModifyID, false, false);
+            // Open the Add Task dialog
+            DOM.addProjectDialog.showModal();
+            
+        }
+
+        window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay);
+        window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
+    })
 
 });
