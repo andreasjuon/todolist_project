@@ -3,7 +3,7 @@
 //automatic styling depending on importance
 
 //TODO FUNCTIONALITY
-//Filter functionality for display
+//Filter functionality for display; if show complete true -> remove that filter to false; if unchecked add again; also add checkbox for each project. if unchecked, add filter that removes this project from view
 
 import "./styles.css";
 import { Project, ToDoItem, createButton } from "./utils/helpers";
@@ -35,7 +35,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ProjectTitleInputAdd: document.querySelector("#add_project_title"),
         ProjectDescriptionInputAdd: document.querySelector("#add_project_description"),
         projectColorInputAdd: document.querySelector("#add_project_color"),
-        cancelProjectButton: document.querySelector("#cancelProject")
+        cancelProjectButton: document.querySelector("#cancelProject"),
+        changeSettingsButton: document.querySelector("#changeSettings"),
+        settingsDialog: document.querySelector("#settings_dialog"),
+        closeSettingsButton: document.querySelector("#closeSettings"),
+        showCompleteCheckbox: document.querySelector("#showComplete")
     };
 
     DOM.toggleButton.addEventListener("click", () => {
@@ -161,7 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
         DOM.addTaskDialog.close();
     });
 
-
     // Adding Project
     DOM.addProjectButton.addEventListener("click", (e) => {
         DOM.addProjectDialog.showModal();
@@ -216,5 +219,36 @@ document.addEventListener("DOMContentLoaded", () => {
         window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay);
         window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
     })
+
+    // Changing settings
+    DOM.changeSettingsButton.addEventListener("click", (e) => {
+        console.log("Settings clicked")
+        DOM.settingsDialog.showModal();
+    });
+    DOM.closeSettingsButton.addEventListener("click", (e) => {
+        console.log("Settings clicked")
+        DOM.settingsDialog.close();
+    })
+
+    // Filtering
+    DOM.showCompleteCheckbox.addEventListener("change", (event) => {
+        if (event.target.checked) {
+            // Remove the filter if present
+            const index = window.userDisplayer.filterList.indexOf(window.userDisplayer.incompleteFilter);
+            if (index > -1) {
+                window.userDisplayer.filterList.splice(index, 1);
+            }
+        } else {
+            // Add the filter if not already present
+            if (window.userDisplayer.filterList.indexOf(window.userDisplayer.incompleteFilter) === -1) {
+                window.userDisplayer.filterList.push(window.userDisplayer.incompleteFilter);
+            }
+        }
+        // Re-render tasks after filter change
+        window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
+    });
+
+
+
 
 });

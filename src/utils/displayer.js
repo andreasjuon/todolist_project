@@ -2,10 +2,10 @@ import { Project, ToDoItem, createButton } from "./helpers";
 
 function Displayer(app) {
 
-    let displayedTasks = app.getTasks();
-    const displayedProjects = app.getProjects();
+    const incompleteFilter = task => task.complete === false;
+
     let filterList = [
-        task => task.complete === false// by default: only display tasks that are incomplete
+        incompleteFilter// by default: only display tasks that are incomplete
     ];
 
     const filterTasks = (tasks, filterList) => {
@@ -26,6 +26,7 @@ function Displayer(app) {
     }
 
     function displayTasks(taskList, taskDisplay) {
+        taskList = filterTasks(taskList, filterList)
         taskDisplay.innerHTML = ""; // clear old content
         taskList.forEach(function (item, index) {
             const task = document.createElement("div");
@@ -97,7 +98,7 @@ function Displayer(app) {
 
     }
 
-    return { displayTasks, filterTasks, displayProjects }
+    return { displayTasks, filterTasks, displayProjects, filterList, incompleteFilter }
 
 }
 
