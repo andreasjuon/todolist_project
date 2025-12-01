@@ -1,30 +1,33 @@
-import { Project, ToDoItem, createButton } from "./helpers";
+import { Project, ToDoItem, createButton, saveToStorage, loadFromStorage } from "./helpers";
 
 function DataManager(user = "test user") {
 
     // internal project and task list, not exposed
-    let inbox = new Project("Inbox", "This is the default project.", "red");
-    let projectList = [inbox];//Inbox is default project
+    //let inbox = new Project("Inbox", "This is the default project.", "red");
+    let projectList = [];//Inbox is default project
     let taskList = [
-        new ToDoItem("Test", "test test test!", inbox.projectId, "13.4.1929", "3")
+        //new ToDoItem("Test", "test test test!", inbox.projectId, "13.4.1929", "3")
     ];//But task list is empty
 
     // new tasks
-    const addTask = (title, description, project, dueDate, priority) => {
-        const newTask = new ToDoItem(title, description, project, dueDate, priority)
+    const addTask = (title, description, project, dueDate, priority, id = "none") => {
+        const newTask = new ToDoItem(title, description, project, dueDate, priority, id)
         taskList.push(newTask);
+        saveToStorage(window.userProject.getTasks(), "task");
     };
 
     // new project
     const addProject = (title, description, color = "green", id = "none") => {
         const newProject = new Project(title, description, color, id);
         projectList.push(newProject);
+        saveToStorage(window.userProject.getProjects(), "project");
     };
 
     // delete task
     const deleteTask = (taskId) => {
         let taskIndex = taskList.findIndex(obj => obj.taskId === taskId)
         taskList.splice(taskIndex, 1);
+        saveToStorage(window.userProject.getTasks(), "task");
     }
 
     // delete project and all its tasks
@@ -51,6 +54,8 @@ function DataManager(user = "test user") {
         if (removeTasks) {
             taskList = taskList.filter(task => task.project !== projectID);
         }
+
+        saveToStorage(window.userProject.getProjects(), "project");
 
     };
 

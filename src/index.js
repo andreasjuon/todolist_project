@@ -7,9 +7,10 @@
 //Pubsub?
 
 import "./styles.css";
-import { Project, ToDoItem, createButton } from "./utils/helpers";
+import { Project, ToDoItem, createButton, storageAvailable, saveToStorage, loadFromStorage } from "./utils/helpers";
 import { DataManager } from "./utils/data_manager";
 import { Displayer } from "./utils/displayer";
+
 
 
 
@@ -73,9 +74,24 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialization
     window.userProject = DataManager();
     window.userDisplayer = Displayer(window.userProject); 
+    if (storageAvailable("localStorage")) {
+        const existingTasks = loadFromStorage("task", "localStorage");
+        existingTasks.forEach(task => {
+            window.userProject.addTask(task.title, task.description, task.project, task.dueDate, task.priority, task.taskId);
+        });
+        const existingProjects = loadFromStorage("project", "localStorage");
+        existingProjects.forEach(project => {
+            window.userProject.addProject(project.title, project.description, project.color, project.projectId, project.visible);
+        });
+    }
+    else {
+        window.userProject.addProject("Inbox", "This is the default project.", "red");
+    }
     window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay)
     window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay)
     console.log(window.userProject.getTasks())
+
+
 
     // Removing task or toggling complete or editing
     DOM.taskDisplay.addEventListener("click", (e) => {
