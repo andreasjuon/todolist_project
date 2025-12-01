@@ -4,6 +4,7 @@
 
 //TODO FUNCTIONALITY
 //Filter functionality for display; if show complete true -> remove that filter to false; if unchecked add again; also add checkbox for each project. if unchecked, add filter that removes this project from view
+//Pubsub?
 
 import "./styles.css";
 import { Project, ToDoItem, createButton } from "./utils/helpers";
@@ -147,9 +148,13 @@ document.addEventListener("DOMContentLoaded", () => {
             projectId = existing.projectId;
         } else {
             // Use selected existing project - need to find by title
-            const selectedTitle = DOM.selectProjectDropdown.value;
-            const selectedProject = window.userProject.getProjects().find(p => p.title === selectedTitle);
-            projectId = selectedProject ? selectedProject.projectId : window.userProject.getProjects()[0].projectId; // fallback to Inbox
+            //const selectedTitle = DOM.selectProjectDropdown.value;
+            //const selectedProject = window.userProject.getProjects().find(p => p.title === selectedTitle);
+            //projectId = selectedProject ? selectedProject.projectId : window.userProject.getProjects()[0].projectId; // fallback to Inbox
+
+            projectId = DOM.selectProjectDropdown.value || window.userProject.getProjects()[0].projectId;
+
+
         }
         // Add task using project ID
         window.userProject.addTask(title, description, projectId, dueDate, priority);
@@ -248,6 +253,99 @@ document.addEventListener("DOMContentLoaded", () => {
         window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
     });
 
+
+    // Checkbox for projects
+    /*
+    DOM.projectDisplay.addEventListener('click', (e) => {
+        if (e.target.matches('.projectVisibleCheckbox')) {
+            const projectId = e.target.dataset.projectId;
+            console.log(projectId)
+            window.userProject.toggleProjectVisibility(projectId);
+            
+            const filterStr = `task => task.project !== "${projectId}"`;
+            const invisibleFilter = new Function('return ' + filterStr)()
+            
+            
+            console.log(invisibleFilter);
+
+            if (e.target.checked) {
+                // If checked, remove the filter (show project)
+                window.userDisplayer.filterList = window.userDisplayer.filterList.filter(
+                    fn => fn.toString() !== invisibleFilter.toString()
+                );
+            } else {
+                // If unchecked, add the filter (hide project)
+                window.userDisplayer.filterList.push(invisibleFilter);
+            }
+
+            // Re-render tasks
+            window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay);
+            window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
+        }
+    });
+    */
+
+    /*
+    const projectFilters = new Map();
+
+    DOM.projectDisplay.addEventListener('click', (e) => {
+        if (e.target.matches('.projectVisibleCheckbox')) {
+            const projectId = e.target.dataset.projectId;
+            console.log(projectId);
+            window.userProject.toggleProjectVisibility(projectId);
+
+            if (e.target.checked) {
+                // If checked, remove the filter (show project)
+                const filterToRemove = projectFilters.get(projectId);
+                if (filterToRemove) {
+                    window.userDisplayer.filterList = window.userDisplayer.filterList.filter(
+                        fn => fn !== filterToRemove
+                    );
+                    projectFilters.delete(projectId);
+                }
+            } else {
+                // If unchecked, add the filter (hide project)
+                const invisibleFilter = task => task.project !== projectId;
+                window.userDisplayer.filterList.push(invisibleFilter);
+                projectFilters.set(projectId, invisibleFilter);
+            }
+
+            // Re-render tasks
+            window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay);
+            window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
+        }
+    });
+    */
+    const projectFilters = new Map();
+    DOM.projectDisplay.addEventListener('click', (e) => {
+        if (e.target.matches('.projectVisibleCheckbox')) {
+            const projectId = e.target.dataset.projectId;
+        
+            window.userProject.toggleProjectVisibility(projectId);
+
+            if (e.target.checked) {
+                // If checked, remove the filter (show project)
+                const filterToRemove = projectFilters.get(projectId);
+                if (filterToRemove) {
+                    const index = window.userDisplayer.filterList.indexOf(filterToRemove);
+                    if (index > -1) {
+                        window.userDisplayer.filterList.splice(index, 1); // Modify in-place
+                    }
+                    projectFilters.delete(projectId);
+                }
+            } else {
+                // If unchecked, add the filter (hide project)
+                const invisibleFilter = task => task.project !== projectId;
+                window.userDisplayer.filterList.push(invisibleFilter);
+                projectFilters.set(projectId, invisibleFilter);
+            }
+            console.log('Current filterList length:', window.userDisplayer.filterList.length);
+
+            // Re-render tasks
+            window.userDisplayer.displayProjects(window.userProject.getProjects(), DOM.projectDisplay);
+            window.userDisplayer.displayTasks(window.userProject.getTasks(), DOM.taskDisplay);
+        }
+    });
 
 
 

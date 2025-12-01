@@ -60,6 +60,12 @@ function DataManager(user = "test user") {
         taskList[taskIndex].complete = taskList[taskIndex].complete ? false: true;
     }
 
+    // in/complete task
+    const toggleProjectVisibility = (projectId) => {
+        let projectIndex = projectList.findIndex(obj => obj.projectId === projectId)
+        projectList[projectIndex].visible = projectList[projectIndex].visible ? false : true;
+    }
+
 
     // export projects
     const getProjects = () => projectList;
@@ -67,7 +73,7 @@ function DataManager(user = "test user") {
     // export projects
     const getTasks = () => taskList;
 
-    return { addTask, deleteTask, toggleCompleteTask, addProject, deleteProject, getProjects, getTasks };
+    return { addTask, deleteTask, toggleCompleteTask, addProject, deleteProject, getProjects, getTasks, toggleProjectVisibility };
 }
 
 export { DataManager };

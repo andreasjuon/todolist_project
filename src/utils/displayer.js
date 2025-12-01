@@ -10,6 +10,8 @@ function Displayer(app) {
 
     const filterTasks = (tasks, filterList) => {
 
+        console.log("Filtering")
+
         // empty displayList
         let displayedTasks = [];
 
@@ -83,7 +85,7 @@ function Displayer(app) {
                 if (key === "projectId") {
                     project.dataset.projectID = value;
                 }
-                if (key === "projectId" || key === "info") continue;
+                if (key === "projectId" || key === "info" || key == "visible") continue;
                 const el = document.createElement("p");
                 el.className = key;       // e.g., 'author', 'title', etc.
                 el.textContent = value;
@@ -92,8 +94,20 @@ function Displayer(app) {
             //add remove button
             project.appendChild(createButton("remove", "Remove"));
             project.appendChild(createButton("edit", "Edit"));
+            //add display checkbox
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "projectVisibleCheckbox";
+            checkbox.dataset.projectId = item.projectId;
+            checkbox.checked = item.visible ?? true;
+            //checkbox.addEventListener('click', e => e.stopPropagation());
+            const label = document.createElement("label");
+            label.textContent = "Show project";
+            label.appendChild(checkbox);
+            project.appendChild(label);
             //add project to projectlist
             projectDisplay.appendChild(project);
+           
         })
 
     }

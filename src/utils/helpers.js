@@ -8,8 +8,9 @@ class Project {
             this.projectId = crypto.randomUUID();
         }
         else this.projectId = id;
-    }
-
+        this.visible = true;
+    };
+    
 }
 
 class ToDoItem {
