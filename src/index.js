@@ -18,30 +18,34 @@ import { Displayer } from "./utils/displayer";
 document.addEventListener("DOMContentLoaded", () => {
 
     const DOM = {
-        toggleButton: document.getElementById("toggleSidebar"),
-        projectDisplay: document.querySelector("#projectList"),
-        taskDisplay: document.querySelector("#taskList"),
-        addTaskButton: document.querySelector("button#addTask"),
-        addTaskDialog: document.querySelector("#add_task_dialog"),
-        addTaskForm: document.querySelector("#add_task_form"),
-        titleInputAdd: document.querySelector("#add_title"),
-        descriptionInputAdd: document.querySelector("#add_description"),
-        dueDateInputAdd: document.querySelector("#add_duedate"),
-        priorityInputAdd: document.querySelector("#add_priority"),
-        selectProjectDropdown: document.querySelector("select#select_project"),
-        cancelTaskButton: document.querySelector("#cancelTask"),
-        newProjectInput: document.querySelector("#new_project_input"),
-        addProjectButton: document.querySelector("button#addProject"),
-        addProjectDialog: document.querySelector("#add_project_dialog"),
-        addProjectForm: document.querySelector("#add_project_form"),
-        ProjectTitleInputAdd: document.querySelector("#add_project_title"),
-        ProjectDescriptionInputAdd: document.querySelector("#add_project_description"),
-        projectColorInputAdd: document.querySelector("#add_project_color"),
-        cancelProjectButton: document.querySelector("#cancelProject"),
-        changeSettingsButton: document.querySelector("#changeSettings"),
-        settingsDialog: document.querySelector("#settings_dialog"),
-        closeSettingsButton: document.querySelector("#closeSettings"),
-        showCompleteCheckbox: document.querySelector("#showComplete")
+      dropdownButton: document.querySelector(".dropdownButton"),
+      dropdownContent: document.querySelector(".dropdownContent"),
+      toggleButton: document.getElementById("toggleSidebar"),
+      projectDisplay: document.querySelector("#projectList"),
+      taskDisplay: document.querySelector("#taskList"),
+      addTaskButton: document.querySelector("button#addTask"),
+      addTaskDialog: document.querySelector("#add_task_dialog"),
+      addTaskForm: document.querySelector("#add_task_form"),
+      titleInputAdd: document.querySelector("#add_title"),
+      descriptionInputAdd: document.querySelector("#add_description"),
+      dueDateInputAdd: document.querySelector("#add_duedate"),
+      priorityInputAdd: document.querySelector("#add_priority"),
+      selectProjectDropdown: document.querySelector("select#select_project"),
+      cancelTaskButton: document.querySelector("#cancelTask"),
+      newProjectInput: document.querySelector("#new_project_input"),
+      addProjectButton: document.querySelector("button#addProject"),
+      addProjectDialog: document.querySelector("#add_project_dialog"),
+      addProjectForm: document.querySelector("#add_project_form"),
+      ProjectTitleInputAdd: document.querySelector("#add_project_title"),
+      ProjectDescriptionInputAdd: document.querySelector(
+        "#add_project_description"
+      ),
+      projectColorInputAdd: document.querySelector("#add_project_color"),
+      cancelProjectButton: document.querySelector("#cancelProject"),
+      changeSettingsButton: document.querySelector("#changeSettings"),
+      settingsDialog: document.querySelector("#settings_dialog"),
+      closeSettingsButton: document.querySelector("#closeSettings"),
+      showCompleteCheckbox: document.querySelector("#showComplete"),
     };
 
     DOM.toggleButton.addEventListener("click", () => {
@@ -54,6 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
             projectTasks.classList.add("sidebar-open");
         }
     });
+
+    DOM.dropdownButton.addEventListener("click", () => {
+        DOM.dropdownContent.classList.toggle("show");
+    })
 
     const formManipulator = {
         clearTaskForm: function() {
