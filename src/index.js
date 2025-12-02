@@ -18,7 +18,7 @@ import { Displayer } from "./utils/displayer";
 document.addEventListener("DOMContentLoaded", () => {
 
     const DOM = {
-      dropdownButton: document.querySelector(".dropdownButton"),
+      dropdownButtons: document.querySelectorAll(".dropdownButton"),
       dropdownContent: document.querySelector(".dropdownContent"),
       toggleButton: document.getElementById("toggleSidebar"),
       projectDisplay: document.querySelector("#projectList"),
@@ -59,9 +59,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    DOM.dropdownButton.addEventListener("click", () => {
-        DOM.dropdownContent.classList.toggle("show");
-    })
+    DOM.dropdownButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const dropdownContent = button.nextElementSibling;
+            dropdownContent.classList.toggle("show");
+        })
+    });
 
     const formManipulator = {
         clearTaskForm: function() {

@@ -15,14 +15,22 @@
 
         <div class="headerRight">
             <div class="dropdown">
-            <button class="dropdownButton">+</button>
-            <div class="dropdownContent">
-                <button id="addProject">Add Project</button>
-                <button id="addTask">Add Task</button>
+                <button class="dropdownButton">+</button>
+                <div class="dropdownContent">
+                    <button id="addProject">Add Project</button>
+                    <button id="addTask">Add Task</button>
+                </div>
             </div>
+
+            <div class="dropdown">
+                <button class="dropdownButton">Settings</button>
+                <div class="dropdownContent">
+                    <label>
+                        <input type="checkbox" id="showComplete">
+                        Show completed tasks
+                    </label>
+                </div>
             </div>
-            <button id="changeSettings">Settings</button>
-        
         </div>
         
 
@@ -111,6 +119,7 @@
         </form>
     </dialog>
 
+    <!--
     <dialog id="settings_dialog">
         <label>
             <input type="checkbox" id="showComplete">
@@ -119,6 +128,7 @@
 
         <button id="closeSettings">Close</button>
     </dialog>
+    -->
 
 </body>
 </html>
